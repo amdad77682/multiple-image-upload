@@ -5,7 +5,11 @@ function App() {
   return (
     <div
       style={{
+        display: "flex",
+        textAlign: "center",
         margin: "auto",
+        alignItems: "center",
+        justifyContent: "center",
         height: "800px",
         width: "800px",
         padding: "10px",

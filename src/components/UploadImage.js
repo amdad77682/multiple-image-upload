@@ -42,28 +42,32 @@ export default function UploadImage() {
                 style={{
                   border: "1px dashed",
                   padding: "8px",
-                  height: "100px",
-                  width: "100px",
+                  height: "200px",
+                  width: "200px",
                   marginLeft: "10px",
+                  marginTop: "10px",
                 }}
               />
             );
           })
         ) : null}
 
-        <p
+        <div
           style={{
             border: "1px dashed",
             padding: "8px",
-            height: "100px",
-            width: "100px",
+            height: "200px",
+            width: "200px",
+            display: "flex",
             textAlign: "center",
+            alignItems: "center",
+            justifyContent: "center",
             marginLeft: "10px",
           }}
         >
           <BiCloudUpload size={32} />
-          <p>{"Choose a file"}</p>
-        </p>
+          {"Choose a file"}
+        </div>
 
         <input
           type="file"
@@ -97,6 +101,7 @@ export default function UploadImage() {
                 <div
                   style={{
                     display: "flex",
+                    flexWrap: "wrap",
                     justifyContent: "center",
                     background: "#f7fafc",
                   }}
@@ -113,13 +118,16 @@ export default function UploadImage() {
                           style={{
                             border: "1px dashed",
                             padding: "8px",
-                            height: "100px",
+                            height: "200px",
                             marginLeft: "10px",
                           }}
                         />
                       );
                     })
                   )}
+                </div>
+                <div>
+                  <input type="text" className="form-input " />
                 </div>
                 <div style={{ padding: "6px", textAlign: "end" }}>
                   <button
