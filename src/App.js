@@ -11,7 +11,6 @@ function App() {
         alignItems: "center",
         justifyContent: "center",
         height: "100%",
-        width: window.innerWidth,
       }}
     >
       <UploadImage />
