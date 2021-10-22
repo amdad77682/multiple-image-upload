@@ -3,7 +3,14 @@ import UploadImage from "./components/UploadImage";
 
 function App() {
   return (
-    <div className="App">
+    <div
+      style={{
+        margin: "auto",
+        height: "800px",
+        width: "800px",
+        padding: "10px",
+      }}
+    >
       <UploadImage />
     </div>
   );
