@@ -60,7 +60,6 @@ export const Modal = ({
                   right: -30px;
                   position: absolute;
                   top: 0px;
-                  color: white;
                 `}
               >
                 <FiX size={24} />

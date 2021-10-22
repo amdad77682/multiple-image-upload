@@ -7,12 +7,11 @@ function App() {
       style={{
         display: "flex",
         textAlign: "center",
-        margin: "auto",
+        margin: "100px",
         alignItems: "center",
         justifyContent: "center",
-        height: "800px",
-        width: "800px",
-        padding: "10px",
+        height: "100%",
+        width: window.innerWidth,
       }}
     >
       <UploadImage />

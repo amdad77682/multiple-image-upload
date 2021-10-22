@@ -23,3 +23,16 @@
   opacity: 0;
   left: 0px;
 }
+
+.container:hover .overlay {
+  display: block;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.container:hover .title {
+  top: 90px;
+}
+
+.container:hover .button {
+  opacity: 1;
+}
