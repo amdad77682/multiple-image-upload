@@ -11,8 +11,10 @@ export default function CompressedImages({ images, onFileSelected }) {
             <progress
               value="0"
               max="1800"
+              style={{ padding: "10px" }}
               id={`progressBar_${image.name}`}
             ></progress>
+            (5min)
             <div
               style={{
                 width: "100%",

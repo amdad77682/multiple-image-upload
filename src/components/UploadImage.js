@@ -63,40 +63,63 @@ export default function UploadImage() {
     });
 
     setImages(mapping);
-    getStatus(selectedImage.name);
+    getStatus(mapping, selectedImage.name);
   };
 
-  const getStatus = async (image) => {
+  const getStatus = async (allimages, image) => {
     console.log(image);
     let interval;
-    createInterval(image);
+
     try {
-      interval = setInterval(async function () {
+      interval = setInterval(async () => {
         const reqbody = {
           original_image: image,
         };
         const res = await getImage(reqbody);
-        console.log("res", res);
+
         if (res.data.data.resized_data) {
           const data = res.data.data.resized_data;
+
           for (var key in data) {
-            if (images.has(image)) {
-              let configs = images.get(image);
+            if (allimages.has(image)) {
+              let configs = allimages.get(image).config;
+              console.log("configs", configs, key, configs.has(key));
+
               if (configs.has(key)) {
                 const specificConfig = configs.get(key);
                 const resizedImage = data[key].url;
-                const mapping = new Map(images);
+                const mapping = new Map(allimages);
                 const configmap = new Map();
 
                 specificConfig.original = resizedImage;
                 specificConfig.resized = true;
+
                 configmap.set(key, specificConfig);
 
                 mapping.set(image, {
                   image: image,
                   config: configmap,
                 });
+                console.log(mapping);
                 setImages(mapping);
+                createInterval(image);
+              } else {
+                // const mapping = new Map(images);
+                // const allconfigmap = new Map(configs);
+                // let prev = {};
+                // prev.original = data[key].url;
+                // prev.resized = true;
+                // prev.config = {
+                //   height: "",
+                //   width: "",
+                // };
+                // prev.Public = data[key].public == "no" ? false : true;
+                // allconfigmap.set(key, prev);
+                // mapping.set(image, {
+                //   image: image,
+                //   config: allconfigmap,
+                // });
+                // setImages(mapping);
               }
             }
           }
@@ -106,6 +129,7 @@ export default function UploadImage() {
       clearInterval(interval);
     }
   };
+  console.log(images);
 
   return (
     <>

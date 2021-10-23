@@ -1,5 +1,5 @@
 import axios from "../network/index";
-const URL = "https://9122-103-155-219-35.ngrok.io";
+const URL = "https://9e1a-103-155-219-35.ngrok.io";
 export const getImage = async (reqbody) => {
   try {
     const apiUrl = `${URL}/api/v1/images/resize/stat`;

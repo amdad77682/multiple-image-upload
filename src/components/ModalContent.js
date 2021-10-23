@@ -30,7 +30,7 @@ export default function ModalContent({ image, blob, closeModal, resizeImage }) {
           };
         });
         console.log(modify);
-        uploadImageCore(blob, modify);
+        await uploadImageCore(blob, modify);
         resizeImage(reqbody);
         closeModal();
         setSubmitting(false);
@@ -163,6 +163,7 @@ export default function ModalContent({ image, blob, closeModal, resizeImage }) {
                     border: solid 2px white;
                     z-index: 1;
                   `}
+                  disabled={formikBag.isSubmitting}
                   type="submit"
                 >
                   Apply
