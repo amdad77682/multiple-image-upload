@@ -6,7 +6,7 @@ import CompressedImages from "./CompressedImages";
 import ModalContent from "./ModalContent";
 import { getImage } from "../request";
 // import { uploadImageCore } from "../request";
-
+var timeleft = 1800;
 export default function UploadImage() {
   const [loadingForUploadImage, setLoadingForUploadImage] =
     React.useState(false);
@@ -34,27 +34,42 @@ export default function UploadImage() {
       setLoadingForUploadImage(false);
     }
   }
+  const createInterval = (image) => {
+    var downloadTimer = setInterval(function () {
+      if (timeleft <= 0) {
+        clearInterval(downloadTimer);
+      }
+      document.getElementById(`progressBar_${image}`).value = 1800 - timeleft;
+      timeleft -= 1;
+    }, 1000);
+  };
   const resizeImage = async (data) => {
     const mapping = new Map(images);
     const configmap = new Map();
     data.config.map((item) => {
       const image = {
         original: data.image,
+
         config: item,
         resized: false,
       };
       const key = item.height + "X" + item.width;
       configmap.set(key, image);
     });
-    mapping.set(selectedImage.name, { image: data.image, config: configmap });
+    mapping.set(selectedImage.name, {
+      image: data.image,
+      name: selectedImage.name,
+      config: configmap,
+    });
 
-    // const res = uploadImageCore(selectedImage, Public);
     setImages(mapping);
     getStatus(selectedImage.name);
   };
 
   const getStatus = async (image) => {
+    console.log(image);
     let interval;
+    createInterval(image);
     try {
       interval = setInterval(async function () {
         const reqbody = {
@@ -63,14 +78,28 @@ export default function UploadImage() {
         const res = await getImage(reqbody);
         console.log("res", res);
         if (res.data.data.resized_data) {
-          Object.values(res.data.data.resized_data).map((item) => {
-            console.log("item", item);
+          const data = res.data.data.resized_data;
+          for (var key in data) {
             if (images.has(image)) {
-              const configs = images.get(image);
-              if (configs.has(item)) {
+              let configs = images.get(image);
+              if (configs.has(key)) {
+                const specificConfig = configs.get(key);
+                const resizedImage = data[key].url;
+                const mapping = new Map(images);
+                const configmap = new Map();
+
+                specificConfig.original = resizedImage;
+                specificConfig.resized = true;
+                configmap.set(key, specificConfig);
+
+                mapping.set(image, {
+                  image: image,
+                  config: configmap,
+                });
+                setImages(mapping);
               }
             }
-          });
+          }
         }
       }, 5000);
     } catch (err) {
