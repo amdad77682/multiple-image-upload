@@ -11,7 +11,7 @@ export const getImage = async (reqbody) => {
 };
 export const deleteImage = async (reqbody) => {
   try {
-    const apiUrl = `${URL}/api/v1/images//delete`;
+    const apiUrl = `${URL}/api/v1/images/delete`;
     const res = await axios.post(apiUrl, reqbody);
     return Promise.resolve(res);
   } catch (error) {
