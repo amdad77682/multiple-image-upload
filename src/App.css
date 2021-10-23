@@ -16,14 +16,6 @@
   justify-items: center;
 }
 
-.input-file {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  left: 0px;
-}
-
 .container:hover .overlay {
   display: block;
   background: rgba(0, 0, 0, 0.3);

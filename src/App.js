@@ -10,7 +10,6 @@ function App() {
         margin: "100px",
         alignItems: "center",
         justifyContent: "center",
-        height: "100%",
       }}
     >
       <UploadImage />

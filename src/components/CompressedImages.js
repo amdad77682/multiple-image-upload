@@ -12,12 +12,11 @@ export default function CompressedImages({ images, onFileSelected }) {
             style={{
               width: "100%",
               display: "flex",
-              flex: 1,
               borderBottom: "1px dashed",
               paddingBottom: "10px",
             }}
           >
-            <Image image={image.image} title={"Original"} />
+            <Image image={image.image} title={"Original"} Public={true} />
 
             {[...image.config.values()].map((items) => {
               console.log("items", items);
@@ -25,7 +24,9 @@ export default function CompressedImages({ images, onFileSelected }) {
                 <>
                   <Image
                     image={items.original}
+                    resized={items.resized}
                     title={items.config.height + "X" + items.config.width}
+                    Public={items.config.Public}
                   />
                 </>
               );

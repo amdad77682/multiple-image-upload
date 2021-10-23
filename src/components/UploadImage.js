@@ -4,6 +4,7 @@ import { Modal } from "./Modal";
 import "styled-components/macro";
 import CompressedImages from "./CompressedImages";
 import ModalContent from "./ModalContent";
+import { getImage } from "../request";
 // import { uploadImageCore } from "../request";
 
 export default function UploadImage() {
@@ -40,6 +41,7 @@ export default function UploadImage() {
       const image = {
         original: data.image,
         config: item,
+        resized: false,
       };
       const key = item.height + "X" + item.width;
       configmap.set(key, image);
@@ -48,7 +50,34 @@ export default function UploadImage() {
 
     // const res = uploadImageCore(selectedImage, Public);
     setImages(mapping);
+    getStatus(selectedImage.name);
   };
+
+  const getStatus = async (image) => {
+    let interval;
+    try {
+      interval = setInterval(async function () {
+        const reqbody = {
+          original_image: image,
+        };
+        const res = await getImage(reqbody);
+        console.log("res", res);
+        if (res.data.data.resized_data) {
+          Object.values(res.data.data.resized_data).map((item) => {
+            console.log("item", item);
+            if (images.has(image)) {
+              const configs = images.get(image);
+              if (configs.has(item)) {
+              }
+            }
+          });
+        }
+      }, 5000);
+    } catch (err) {
+      clearInterval(interval);
+    }
+  };
+
   return (
     <>
       <div className={"upload-image"}>
@@ -71,19 +100,29 @@ export default function UploadImage() {
             justifyContent: "center",
             marginLeft: "10px",
             marginTop: "10px",
+            position: "relative",
           }}
         >
           <BiCloudUpload size={32} />
           {"Choose a file"}
+          <input
+            type="file"
+            name={"image"}
+            className="input-file"
+            style={{
+              width: "100%",
+              height: "300px",
+              display: "flex",
+              textAlign: "center",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "absolute",
+              opacity: "0",
+            }}
+            accept="image/*"
+            onChange={(e) => onFileSelected(e)}
+          />
         </div>
-
-        <input
-          type="file"
-          name={"image"}
-          className="input-file"
-          accept="image/*"
-          onChange={(e) => onFileSelected(e)}
-        />
       </div>
       {openModal ? (
         <Modal
@@ -97,6 +136,7 @@ export default function UploadImage() {
             return (
               <ModalContent
                 image={image}
+                blob={selectedImage}
                 closeModal={() => {
                   setOpenModal(false);
                 }}

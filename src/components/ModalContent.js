@@ -3,8 +3,9 @@ import React from "react";
 import { FiPlus } from "react-icons/fi";
 import { AiOutlineClose } from "react-icons/ai";
 import "styled-components/macro";
+import { uploadImageCore } from "../request";
 
-export default function ModalContent({ image, closeModal, resizeImage }) {
+export default function ModalContent({ image, blob, closeModal, resizeImage }) {
   return (
     <Formik
       initialValues={{
@@ -21,6 +22,15 @@ export default function ModalContent({ image, closeModal, resizeImage }) {
           image: image,
           config: values.config,
         };
+        const modify = values.config.map((item) => {
+          return {
+            height: item.height,
+            width: item.width,
+            public: item.Public ? "yes" : "no",
+          };
+        });
+        console.log(modify);
+        uploadImageCore(blob, modify);
         resizeImage(reqbody);
         closeModal();
         setSubmitting(false);

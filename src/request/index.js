@@ -1,23 +1,24 @@
-import { axios } from "../network/index";
+import axios from "../network/index";
+const URL = "https://9122-103-155-219-35.ngrok.io";
 export const getImage = async (reqbody) => {
   try {
-    const apiUrl = `https://48c8-103-155-219-36.ngrok.io/api/v1/images/resize/stat`;
+    const apiUrl = `${URL}/api/v1/images/resize/stat`;
     const res = await axios.post(apiUrl, reqbody);
     return Promise.resolve(res);
   } catch (error) {
     return Promise.reject(error);
   }
 };
-export async function uploadImageCore(file, Public, resolutions) {
+export async function uploadImageCore(file, resolutions) {
   const form = new FormData();
   form.append("files", file, file.name);
-  form.append("public", Public);
-  form.append("resolutions", resolutions);
+  form.append("public", "yes");
+  form.append("resolutions", JSON.stringify(resolutions));
   try {
-    const apiUrl = "https://48c8-103-155-219-36.ngrok.io/api/v1/images/";
+    const apiUrl = `${URL}/api/v1/images/`;
     const res = await axios.post(apiUrl, form);
 
-    if (res.status == 201) {
+    if (res.status == 200) {
       return Promise.resolve(res);
     } else {
       return Promise.reject();
