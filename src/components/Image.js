@@ -1,7 +1,7 @@
 import React from "react";
 import "styled-components/macro";
 
-export default function Image({ image, title, resized, Public }) {
+export default function Image({ image, name, title, resized, Public }) {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <div
@@ -39,7 +39,7 @@ export default function Image({ image, title, resized, Public }) {
         <h4>{title}</h4>
         {Public ? (
           <a
-            download="custom-filename.jpg"
+            download={name}
             href={image}
             title="ImageName"
             style={{ marginLeft: "10px" }}

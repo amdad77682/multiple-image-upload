@@ -1,8 +1,17 @@
 import axios from "../network/index";
-const URL = "https://9e1a-103-155-219-35.ngrok.io";
+const URL = "http://192.168.1.101:3000";
 export const getImage = async (reqbody) => {
   try {
     const apiUrl = `${URL}/api/v1/images/resize/stat`;
+    const res = await axios.post(apiUrl, reqbody);
+    return Promise.resolve(res);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+export const deleteImage = async (reqbody) => {
+  try {
+    const apiUrl = `${URL}/api/v1/images//delete`;
     const res = await axios.post(apiUrl, reqbody);
     return Promise.resolve(res);
   } catch (error) {

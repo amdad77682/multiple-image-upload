@@ -18,6 +18,7 @@ export default function ModalContent({ image, blob, closeModal, resizeImage }) {
         return errors;
       }}
       onSubmit={async (values, { setSubmitting }) => {
+        setSubmitting(true);
         const reqbody = {
           image: image,
           config: values.config,
@@ -29,8 +30,8 @@ export default function ModalContent({ image, blob, closeModal, resizeImage }) {
             public: item.Public ? "yes" : "no",
           };
         });
-        console.log(modify);
-        await uploadImageCore(blob, modify);
+
+        const res = await uploadImageCore(blob, modify);
         resizeImage(reqbody);
         closeModal();
         setSubmitting(false);
@@ -152,23 +153,48 @@ export default function ModalContent({ image, blob, closeModal, resizeImage }) {
                   }
                 />
               </div>
-              <div style={{ padding: "6px", textAlign: "end" }}>
-                <button
-                  css={`
-                    width: 200px;
-                    padding: 12px 48px;
-                    text-align: center;
-                    color: white;
-                    background: black;
-                    border: solid 2px white;
-                    z-index: 1;
-                  `}
-                  disabled={formikBag.isSubmitting}
-                  type="submit"
-                >
-                  Apply
-                </button>
-              </div>
+              {formikBag.isSubmitting ? (
+                <div style={{ padding: "6px", textAlign: "end" }}>
+                  <button
+                    css={`
+                      width: 200px;
+                      padding: 12px 48px;
+                      text-align: center;
+                      color: white;
+                      background: black;
+                      border: solid 2px white;
+                      z-index: 1;
+                    `}
+                  >
+                    <i
+                      css={`
+                        margin-left: -12px;
+                        margin-right: 8px;
+                      `}
+                      class="fa-spinner fa-spin"
+                    ></i>
+                    Loading
+                  </button>
+                </div>
+              ) : (
+                <div style={{ padding: "6px", textAlign: "end" }}>
+                  <button
+                    css={`
+                      width: 200px;
+                      padding: 12px 48px;
+                      text-align: center;
+                      color: white;
+                      background: black;
+                      border: solid 2px white;
+                      z-index: 1;
+                    `}
+                    disabled={formikBag.isSubmitting}
+                    type="submit"
+                  >
+                    Apply
+                  </button>
+                </div>
+              )}
             </div>
           </Form>
         );

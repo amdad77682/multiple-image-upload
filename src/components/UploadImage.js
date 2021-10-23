@@ -4,13 +4,16 @@ import { Modal } from "./Modal";
 import "styled-components/macro";
 import CompressedImages from "./CompressedImages";
 import ModalContent from "./ModalContent";
-import { getImage } from "../request";
+import { deleteImage, getImage } from "../request";
 // import { uploadImageCore } from "../request";
-var timeleft = 1800;
+var timeleft = 30;
+const Time = 30;
 export default function UploadImage() {
   const [loadingForUploadImage, setLoadingForUploadImage] =
     React.useState(false);
   const [image, setImage] = React.useState(null);
+  const [size, setsize] = React.useState(0);
+  const [LoadingResizing, setLoadingResizing] = React.useState(new Map());
   const [selectedImage, setselectedImage] = React.useState(null);
 
   const [images, setImages] = React.useState(new Map());
@@ -34,12 +37,41 @@ export default function UploadImage() {
       setLoadingForUploadImage(false);
     }
   }
-  const createInterval = (image) => {
-    var downloadTimer = setInterval(function () {
+  const removeFromMap = async (mapping, image) => {
+    const reqbody = {
+      original_image: image,
+    };
+    await deleteImage(reqbody);
+    const img = new Map(mapping);
+    console.log("remove image===", image, mapping, img.has(image));
+    if (img.has(image)) {
+      console.log("remove image inside===", image);
+      img.delete(image);
+      setImages(img);
+    }
+  };
+  const createInterval = (mapping, image) => {
+    console.log("image", image);
+    var downloadTimer = setInterval(() => {
       if (timeleft <= 0) {
         clearInterval(downloadTimer);
+        removeFromMap(mapping, image);
       }
-      document.getElementById(`progressBar_${image}`).value = 1800 - timeleft;
+      const doc = document.getElementById(`progressBar_${image}`);
+      const timer = document.getElementById(`timer_${image}`);
+      if (doc) {
+        doc.value = Time - timeleft;
+      }
+      if (timer) {
+        const minutes = Math.floor(timeleft / 60);
+        const seconds = Math.floor(timeleft - minutes * 60);
+        timer.innerHTML =
+          "Resize Completed Image Removed after " +
+          minutes +
+          "m " +
+          seconds +
+          "s";
+      }
       timeleft -= 1;
     }, 1000);
   };
@@ -49,11 +81,10 @@ export default function UploadImage() {
     data.config.map((item) => {
       const image = {
         original: data.image,
-
         config: item,
         resized: false,
       };
-      const key = item.height + "X" + item.width;
+      const key = item.width + "x" + item.height;
       configmap.set(key, image);
     });
     mapping.set(selectedImage.name, {
@@ -65,11 +96,16 @@ export default function UploadImage() {
     setImages(mapping);
     getStatus(mapping, selectedImage.name);
   };
+  const checkComplete = (data, allimages, image) => {
+    const cuurentimage = allimages.get(image);
+
+    let configs = cuurentimage.config;
+    console.log("configs", configs, configs.keys());
+    return Array.from(configs.keys()).every((key) => configs.get(key).resized);
+  };
 
   const getStatus = async (allimages, image) => {
-    console.log(image);
     let interval;
-
     try {
       interval = setInterval(async () => {
         const reqbody = {
@@ -79,47 +115,42 @@ export default function UploadImage() {
 
         if (res.data.data.resized_data) {
           const data = res.data.data.resized_data;
-
+          setsize(res.data.data.file_size);
+          const cuurentimage = allimages.get(image);
+          let configs = cuurentimage.config;
+          const mapping = new Map(allimages);
+          const loadinmgap = new Map(LoadingResizing);
+          loadinmgap.set(image, true);
+          setLoadingResizing(loadinmgap);
           for (var key in data) {
             if (allimages.has(image)) {
-              let configs = allimages.get(image).config;
-              console.log("configs", configs, key, configs.has(key));
-
               if (configs.has(key)) {
+                //if found in response
                 const specificConfig = configs.get(key);
                 const resizedImage = data[key].url;
-                const mapping = new Map(allimages);
-                const configmap = new Map();
 
+                const configmap = new Map(configs);
                 specificConfig.original = resizedImage;
                 specificConfig.resized = true;
 
                 configmap.set(key, specificConfig);
-
                 mapping.set(image, {
-                  image: image,
+                  image: cuurentimage.image,
+                  name: image,
+                  size: res.data.data.file_size,
                   config: configmap,
                 });
-                console.log(mapping);
                 setImages(mapping);
-                createInterval(image);
-              } else {
-                // const mapping = new Map(images);
-                // const allconfigmap = new Map(configs);
-                // let prev = {};
-                // prev.original = data[key].url;
-                // prev.resized = true;
-                // prev.config = {
-                //   height: "",
-                //   width: "",
-                // };
-                // prev.Public = data[key].public == "no" ? false : true;
-                // allconfigmap.set(key, prev);
-                // mapping.set(image, {
-                //   image: image,
-                //   config: allconfigmap,
-                // });
-                // setImages(mapping);
+                //check complete
+                if (checkComplete(data, mapping, image)) {
+                  setImages(mapping);
+                  clearInterval(interval);
+                  createInterval(mapping, image);
+                  const loadinmgap = new Map(LoadingResizing);
+                  loadinmgap.set(image, false);
+                  setLoadingResizing(loadinmgap);
+                  return;
+                }
               }
             }
           }
@@ -129,16 +160,32 @@ export default function UploadImage() {
       clearInterval(interval);
     }
   };
-  console.log(images);
 
   return (
-    <>
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      {images.size > 0 ? (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "start",
+            borderBottom: "1px dashed",
+          }}
+        >
+          <h3>{Number(size).toFixed(2) + "M Uploaded"}</h3>
+        </div>
+      ) : null}
+
       <div className={"upload-image"}>
         {
           loadingForUploadImage ? (
             <p>loading...</p>
           ) : images.size > 0 ? (
-            <CompressedImages images={images} onFileSelected={onFileSelected} />
+            <CompressedImages
+              LoadingResizing={LoadingResizing}
+              size={size}
+              images={images}
+              onFileSelected={onFileSelected}
+            />
           ) : null //
         }
         <div
@@ -160,6 +207,7 @@ export default function UploadImage() {
           {"Choose a file"}
           <input
             type="file"
+            accept="image/jpeg, image/png"
             name={"image"}
             className="input-file"
             style={{
@@ -172,7 +220,6 @@ export default function UploadImage() {
               position: "absolute",
               opacity: "0",
             }}
-            accept="image/*"
             onChange={(e) => onFileSelected(e)}
           />
         </div>
@@ -199,6 +246,6 @@ export default function UploadImage() {
           }}
         />
       ) : null}
-    </>
+    </div>
   );
 }
